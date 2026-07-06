@@ -1,6 +1,6 @@
 import sqlite3
 import os
-from datetime import datetime
+from datetime import datetime, timezone
 
 DB_PATH = os.path.join(os.path.dirname(__file__), "..", "..", "history.db")
 
@@ -22,9 +22,10 @@ def init_db():
 
 def save_history(original_text: str, predicted_label: str, confidence: float):
     conn = sqlite3.connect(DB_PATH)
+    created_at = datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
     conn.execute(
         "INSERT INTO prediction_history (original_text, predicted_label, confidence, created_at) VALUES (?, ?, ?, ?)",
-        (original_text, predicted_label, confidence, datetime.now().isoformat()),
+        (original_text, predicted_label, confidence, created_at),
     )
     conn.commit()
     conn.close()
